@@ -1,0 +1,95 @@
+- name: Install additional packages
+  ansible.builtin.apt:
+    pkg: "{{ respeaker_wyoming_satellite_packages }}"
+    update_cache: true
+
+- name: Clone a repo into {{ respeaker_wyoming_satellite_dir }}
+  ansible.builtin.git:
+    repo: "{{ respeaker_wyoming_satellite_repo }}"
+    dest: "{{ respeaker_wyoming_satellite_dir }}"
+    version: "{{ respeaker_wyoming_satellite_version }}"
+    force: true
+    update: true
+
+- name: Check service if it is running
+  block:
+    - name: Get service file
+      ansible.builtin.stat:
+        path: "/etc/systemd/system/{{ respeaker_wyoming_satellite_name }}.service"
+      register: respeaker_wyoming_satellite_service_file
+    - name: Stop service
+      when: respeaker_wyoming_satellite_service_file.stat.exists
+      ansible.builtin.systemd:
+        name: "{{ respeaker_wyoming_satellite_name }}"
+        state: stopped
+
+- name: Run installer {{ respeaker_wyoming_satellite_name }}
+  changed_when: true
+  check_mode: false
+  ansible.builtin.command:
+    cmd: "{{ respeaker_wyoming_satellite_dir }}/etc/install-respeaker-drivers.sh"
+    chdir: "{{ respeaker_wyoming_satellite_dir }}"
+  register: respeaker_wyoming_satellite_install
+  failed_when:
+    - 'respeaker_wyoming_satellite_install.rc != 0 and "DKMS tree already contains: seeed-voicecard-0.3" not in respeaker_wyoming_satellite_install.stderr'
+
+- name: Check if the installation was successful
+  ansible.builtin.debug:
+    msg: "{{ respeaker_wyoming_satellite_install.stdout }}"
+  when: respeaker_wyoming_satellite_install.rc == 0
+  failed_when: respeaker_wyoming_satellite_install.rc != 0
+  changed_when: respeaker_wyoming_satellite_install.rc == 0
+
+- name: Reboot if needed
+  when: respeaker_wyoming_satellite_install.stdout.find('Please reboot the system') != -1
+  ansible.builtin.reboot:
+
+- name: Upgrade pip
+  ansible.builtin.pip:
+    name: "pip"
+    virtualenv: "{{ respeaker_wyoming_satellite_pip_venv_path }}"
+    virtualenv_command: "{{ respeaker_wyoming_satellite_pip_venv_command }}"
+    virtualenv_site_packages: true
+
+- name: Install internal pip modules
+  ansible.builtin.pip:
+    name: "{{ respeaker_wyoming_satellite_pip_packages }}"
+    virtualenv: "{{ respeaker_wyoming_satellite_pip_venv_path }}"
+
+- name: Install pip modules
+  ansible.builtin.pip:
+    requirements: "{{ item }}"
+    extra_args: "-f {{ respeaker_wyoming_satellite_prebuilt_apps }}"
+    chdir: "{{ respeaker_wyoming_satellite_dir }}"
+    virtualenv: "{{ respeaker_wyoming_satellite_pip_venv_path }}"
+  loop: "{{ respeaker_wyoming_satellite_pip_requirements }}"
+
+- name: Verify sound card
+  changed_when: false
+  ansible.builtin.command:
+    cmd: "arecord -l"
+  register: sound_card
+
+- name: Debug sound card
+  ansible.builtin.debug:
+    msg: "{{ sound_card.stdout }}"
+  when: sound_card.rc == 0
+  failed_when: sound_card.stdout.find(respeaker_wyoming_satellite_device) != -1
+  changed_when: sound_card.rc == 0
+
+- name: Create wyoming-satellite service
+  ansible.builtin.template:
+    src: "wyoming-satellite.service.j2"
+    dest: "/etc/systemd/system/{{ respeaker_wyoming_satellite_name }}.service"
+    mode: "0644"
+    owner: "root"
+    group: "root"
+  notify: Restart {{ respeaker_wyoming_satellite_name }}
+
+- name: Enable and start wyoming-satellite service
+  ansible.builtin.systemd:
+    name: "{{ respeaker_wyoming_satellite_name }}"
+    enabled: true
+    state: started
+    daemon_reload: true
+  notify: Restart {{ respeaker_wyoming_satellite_name }}

@@ -1,0 +1,7 @@
+respeaker_wyoming_openwakeword_enable: true
+respeaker_wyoming_openwakeword_wakeword_name: ok_nabu
+respeaker_wyoming_openwakeword_url: "https://github.com/rhasspy/wyoming-openwakeword.git"
+respeaker_wyoming_openwakeword_dir: /opt/wyoming-openwakeword
+respeaker_wyoming_openwakeword_version: master
+respeaker_wyoming_openwakeword_listen_uri: "tcp://127.0.0.1:10400"
+respeaker_wyoming_openwakeword_name: wyoming-openwakeword

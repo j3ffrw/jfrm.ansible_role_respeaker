@@ -1,0 +1,12 @@
+[Unit]
+Description=Wyoming openWakeWord
+
+[Service]
+Type=simple
+ExecStart={{ respeaker_wyoming_openwakeword_dir }}/script/run --uri '{{ respeaker_wyoming_openwakeword_listen_uri }}' --preload-model '{{ respeaker_wyoming_openwakeword_wakeword_name }}'
+WorkingDirectory={{ respeaker_wyoming_openwakeword_dir }}
+Restart=always
+RestartSec=1
+
+[Install]
+WantedBy=default.target

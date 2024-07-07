@@ -1,0 +1,14 @@
+- name: Restart wyoming-satellite
+  ansible.builtin.service:
+    name: "{{ respeaker_wyoming_satellite_name }}"
+    state: restarted
+
+- name: Restart wyoming-openwakeword
+  ansible.builtin.service:
+    name: "{{ respeaker_wyoming_openwakeword_name }}"
+    state: restarted
+
+- name: Restart 2mic_leds
+  ansible.builtin.service:
+    name: "{{ respeaker_led_name }}"
+    state: restarted

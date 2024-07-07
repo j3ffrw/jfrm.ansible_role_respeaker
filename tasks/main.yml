@@ -1,0 +1,35 @@
+- name: Local wakeword detection
+  when: respeaker_wyoming_openwakeword_enable
+  ansible.builtin.include_tasks:
+    file: localwakeword.yml
+    apply:
+      tags:
+        - voice
+        - localwakeword
+  tags:
+    - voice
+    - localwakeword
+
+- name: LED Service
+  when: respeaker_led_enable
+  ansible.builtin.include_tasks:
+    file: led.yml
+    apply:
+      tags:
+        - voice
+        - led
+  tags:
+    - voice
+    - led
+
+- name: Flush handlers
+  ansible.builtin.meta: flush_handlers
+
+- name: Wyoming Satellite
+  ansible.builtin.include_tasks:
+    file: satellite.yml
+    apply:
+      tags:
+        - satellite
+  tags:
+    - satellite

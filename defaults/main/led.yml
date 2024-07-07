@@ -1,0 +1,10 @@
+respaeker_led_enable: false
+respeaker_led_packages:
+  - python3-spidev
+  - python3-gpiozero
+
+respeaker_led_pip_venv_path: "{{ respeaker_wyoming_satellite_dir }}/examples/.venv"
+respeaker_led_pip_venv_command: python3 -m venv --system-site-packages
+respeaker_led_type: "2mic_leds"
+respeaker_led_name: "2mic_leds"
+respeaker_led_listen_uri: "tcp://127.0.0.1:10500"

@@ -1,0 +1,21 @@
+- name: Install additional packages
+  ansible.builtin.apt:
+    pkg: "{{ respeaker_led_packages }}"
+    update_cache: true
+
+- name: Create service {{ respeaker_led_name }}
+  ansible.builtin.template:
+    src: "{{ respeaker_led_type }}.service.j2"
+    dest: "/etc/systemd/system/{{ respeaker_led_name }}.service"
+    mode: "0644"
+    owner: "root"
+    group: "root"
+  notify: Restart {{ respeaker_led_name }}
+
+- name: Enable and start service {{ respeaker_led_name }}
+  ansible.builtin.systemd:
+    name: "{{ respeaker_led_name }}"
+    enabled: true
+    state: started
+    daemon_reload: true
+  notify: Restart {{ respeaker_led_name }}

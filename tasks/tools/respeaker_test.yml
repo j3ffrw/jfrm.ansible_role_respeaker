@@ -1,0 +1,22 @@
+- name: Create temp wav file
+  ansible.builtin.tempfile:
+    state: file
+    suffix: .wav
+  register: temp_wav_file
+
+- name: Record 5 seconds audio
+  changed_when: false
+  ansible.builtin.command:
+    cmd: arecord -D {{ wyoming_satellite_device }} -r 16000 -c 1 -f S16_LE -t wav -d 5 {{ temp_wav_file.path }}
+  register: record_result
+
+- name: Play back the recorded audio
+  changed_when: false
+  ansible.builtin.command:
+    cmd: aplay -D {{ wyoming_satellite_device }} {{ temp_wav_file.path }}
+  when: record_result.rc == 0
+
+- name: Remove the temp wav file
+  ansible.builtin.file:
+    path: "{{ temp_wav_file.path }}"
+    state: absent
