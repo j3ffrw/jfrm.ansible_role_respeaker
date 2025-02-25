@@ -1,3 +1,7 @@
+- name: Install respeacker driver
+  ansible.builtin.include_tasks:
+    file: driver.yml
+
 - name: Local wakeword detection
   when: respeaker_wyoming_openwakeword_enable
   ansible.builtin.include_tasks:
