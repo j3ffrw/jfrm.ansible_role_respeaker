@@ -56,13 +56,12 @@
     name: "{{ respeaker_wyoming_satellite_pip_packages }}"
     virtualenv: "{{ respeaker_wyoming_satellite_pip_venv_path }}"
 
-- name: Install pip modules
+- name: Install pyproject.toml
   ansible.builtin.pip:
-    requirements: "{{ item }}"
-    extra_args: "-f {{ respeaker_wyoming_satellite_prebuilt_apps }}"
+    name: "pip"
+    extra_args: "-f {{ respeaker_wyoming_satellite_prebuilt_apps }} -e .[all]"
     chdir: "{{ respeaker_wyoming_satellite_dir }}"
     virtualenv: "{{ respeaker_wyoming_satellite_pip_venv_path }}"
-  loop: "{{ respeaker_wyoming_satellite_pip_requirements }}"
 
 - name: Verify sound card
   changed_when: false

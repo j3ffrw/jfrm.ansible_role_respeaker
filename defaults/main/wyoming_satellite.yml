@@ -16,10 +16,6 @@ respeaker_wyoming_satellite_pip_packages:
   - wheel
   - setuptools
 respeaker_wyoming_satellite_prebuilt_apps: "https://synesthesiam.github.io/prebuilt-apps/"
-respeaker_wyoming_satellite_pip_requirements:
-  - requirements.txt
-  - requirements_audio_enhancement.txt
-  - requirements_vad.txt
 respeaker_wyoming_satellite_device: "plughw:CARD=seeed2micvoicec,DEV=0"
 respeaker_wyoming_satellite_listen_uri: "tcp://0.0.0.0:10700"
 respeaker_wyoming_satellite_debug_enable: false
